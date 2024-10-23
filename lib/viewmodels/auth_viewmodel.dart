@@ -15,6 +15,43 @@ class AuthViewModel extends ChangeNotifier {
 
   final AuthService _authService = AuthService();
 
+  // Obtener datos del perfil y asignar directamente a _user
+  Future<void> fetchUserProfile() async {
+    _loading = true;
+    notifyListeners();
+    try {
+      final userProfile = await _authService.getUserProfile();
+      _user = User.fromJson(userProfile); // Asignar directamente a _user
+    } catch (e) {
+      _errorMessage = 'Error al cargar el perfil';
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  // Actualizar perfil y asignar el perfil actualizado a _user
+  Future<void> updateUserProfile(String name, String email) async {
+    _loading = true;
+    notifyListeners();
+    try {
+      final updatedProfile = await _authService.updateUserProfile(name, email);
+      _user = User.fromJson(updatedProfile);
+    } catch (e) {
+      _errorMessage = 'Error al actualizar el perfil';
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout() async {
+    await _authService.logout();
+    _user = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> login(String email, String password) async {
     print(email);
     _setLoading(true);
@@ -65,7 +102,7 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logout() async {
+  Future<void> logout_2() async {
     await _authService.removeUser();
     _user = null;
     notifyListeners();

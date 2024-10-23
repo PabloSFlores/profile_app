@@ -104,4 +104,54 @@ class AuthService {
     await prefs.remove('email');
     await prefs.remove('id');
   }
+
+  // Obtener perfil del usuario
+  Future<Map<String, dynamic>> getUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/profile'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Error al obtener el perfil del usuario');
+    }
+  }
+
+  // Actualizar perfil del usuario
+  Future<Map<String, dynamic>> updateUserProfile(
+      String name, String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/profile'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'name': name,
+        'email': email,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Error al actualizar el perfil');
+    }
+  }
+
+  // Cerrar sesión
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
+  }
 }
